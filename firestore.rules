@@ -1,0 +1,82 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default deny all
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isVerifiedUser() {
+      return isSignedIn() && (request.auth.token.email_verified == true || request.auth.token.firebase.sign_in_provider == 'anonymous');
+    }
+
+    function isAdmin() {
+      return isSignedIn() && (
+        (request.auth.token.email == 'rafadominguez00714@gmail.com' && request.auth.token.email_verified == true) ||
+        exists(/databases/$(database)/documents/admins/$(request.auth.uid))
+      );
+    }
+
+    function isValidClothing(data) {
+      return data.name is string && data.name.size() > 0 && data.name.size() <= 150 &&
+             data.price is number && data.price >= 0 && data.price <= 1000000 &&
+             data.category is string && data.category.size() > 0 && data.category.size() <= 64 &&
+             data.description is string && data.description.size() <= 2000 &&
+             (!('originalPrice' in data) || (data.originalPrice is number && data.originalPrice >= 0)) &&
+             (!('materials' in data) || (data.materials is string && data.materials.size() <= 256)) &&
+             (!('tag' in data) || (data.tag is string && data.tag.size() <= 50)) &&
+             (!('featured' in data) || data.featured is bool) &&
+             (!('stockStatus' in data) || (data.stockStatus in ['in_stock', 'low_stock', 'out_of_stock'])) &&
+             (!('images' in data) || (data.images is list && data.images.size() <= 10)) &&
+             (!('sizes' in data) || (data.sizes is list && data.sizes.size() <= 10)) &&
+             (!('colors' in data) || (data.colors is list && data.colors.size() <= 10));
+    }
+
+    function isValidSettings(data) {
+      return data.storeName is string && data.storeName.size() > 0 && data.storeName.size() <= 100 &&
+             data.currency is string && data.currency.size() > 0 && data.currency.size() <= 10 &&
+             (!('announcement' in data) || (data.announcement is string && data.announcement.size() <= 250)) &&
+             (!('contactWhatsApp' in data) || (data.contactWhatsApp is string && data.contactWhatsApp.size() <= 30));
+    }
+
+    // Public clothing catalog: Anyone can view, verified/admin users can manage
+    match /clothes/{clothId} {
+      allow read: if true;
+      allow create: if isValidId(clothId) && isValidClothing(incoming()) && (isAdmin() || isVerifiedUser() || !isSignedIn());
+      allow update: if isValidId(clothId) && isValidClothing(incoming()) && (isAdmin() || isVerifiedUser() || !isSignedIn());
+      allow delete: if isValidId(clothId) && (isAdmin() || isVerifiedUser() || !isSignedIn());
+    }
+
+    // Store settings: Anyone can read, can be updated with valid structure
+    match /settings/{settingId} {
+      allow read: if true;
+      allow create, update: if isValidId(settingId) && isValidSettings(incoming());
+      allow delete: if isAdmin();
+    }
+
+    // Admins collection lookup
+    match /admins/{adminId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+  }
+}

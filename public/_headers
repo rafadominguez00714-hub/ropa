@@ -1,0 +1,17 @@
+# Cloudflare Pages Caching and Performance Headers
+
+# Static Fingerprinted Assets - Cache Forever at Edge & Browser (0 Worker hits)
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable
+  Access-Control-Allow-Origin: *
+
+# HTML Entry - Validate ETag to ensure latest version without unnecessary bandwidth
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate
+
+# Standard security headers
+/*
+  X-Content-Type-Options: nosniff
+  X-Frame-Options: SAMEORIGIN
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(), microphone=(), geolocation=()

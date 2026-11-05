@@ -1,0 +1,121 @@
+{
+  "entities": {
+    "clothing": {
+      "title": "Clothing Item",
+      "description": "Represents a garment or fashion item in the catalog with pricing, images, and specifications.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier of the clothing item",
+          "maxLength": 128
+        },
+        "name": {
+          "type": "string",
+          "description": "Display name of the garment",
+          "maxLength": 150
+        },
+        "price": {
+          "type": "number",
+          "description": "Current selling price"
+        },
+        "originalPrice": {
+          "type": "number",
+          "description": "Previous or original retail price before discount"
+        },
+        "category": {
+          "type": "string",
+          "description": "Catalog category (e.g., Abrigos, Camisas, Pantalones, Vestidos, Accesorios)",
+          "maxLength": 64
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the garment and fit",
+          "maxLength": 2000
+        },
+        "materials": {
+          "type": "string",
+          "description": "Composition and fabric details (e.g. 100% Lino Orgánico)",
+          "maxLength": 256
+        },
+        "images": {
+          "type": "array",
+          "description": "List of image URLs showcasing the clothing item"
+        },
+        "sizes": {
+          "type": "array",
+          "description": "Available clothing sizes like XS, S, M, L, XL"
+        },
+        "colors": {
+          "type": "array",
+          "description": "Available color names and hex codes"
+        },
+        "stockStatus": {
+          "type": "string",
+          "description": "Inventory status: in_stock, low_stock, or out_of_stock",
+          "enum": ["in_stock", "low_stock", "out_of_stock"]
+        },
+        "featured": {
+          "type": "boolean",
+          "description": "Whether the piece is highlighted on the front lookbook gallery"
+        },
+        "tag": {
+          "type": "string",
+          "description": "Special badge like NUEVO, EDICIÓN LIMITADA, o REBAJAS",
+          "maxLength": 50
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "ISO timestamp of creation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last update"
+        }
+      },
+      "required": ["name", "price", "category", "description", "stockStatus"]
+    },
+    "catalogSettings": {
+      "title": "Catalog Settings",
+      "description": "General settings for the store catalog including store name, currency, and announcement message.",
+      "type": "object",
+      "properties": {
+        "storeName": {
+          "type": "string",
+          "description": "Store branding name",
+          "maxLength": 100
+        },
+        "currency": {
+          "type": "string",
+          "description": "Default currency code or symbol (e.g. USD, EUR, $)",
+          "maxLength": 10
+        },
+        "announcement": {
+          "type": "string",
+          "description": "Top banner promotional announcement text",
+          "maxLength": 250
+        },
+        "contactWhatsApp": {
+          "type": "string",
+          "description": "WhatsApp phone number for customer orders or inquiries",
+          "maxLength": 30
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "ISO timestamp of last configuration update"
+        }
+      },
+      "required": ["storeName", "currency"]
+    }
+  },
+  "firestore": {
+    "/clothes/{clothId}": {
+      "schema": "clothing",
+      "description": "Collection of clothing items shown in the fashion lookbook gallery"
+    },
+    "/settings/{settingId}": {
+      "schema": "catalogSettings",
+      "description": "Store configuration and global display preferences"
+    }
+  }
+}

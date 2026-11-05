@@ -1,0 +1,6 @@
+{
+  "name": "Atelier Minimal - Catálogo de Moda & Precios",
+  "description": "Exclusiva galería minimalista de moda con exhibición de prendas, precios y panel de administración conectado a Firebase.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
